@@ -4,6 +4,9 @@ dist
 config.gypi
 yarn.lock
 
+.idea
+.vscode
+
 // osx garbage
 *.DS_Store
 .DS_Store
