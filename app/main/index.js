@@ -7,6 +7,7 @@ const ipc = require('electron').ipcMain;
 const Configstore = require('configstore');
 const tray = require('./tray');
 const appMenu = require('./menu');
+const sender = require('./sender');
 
 const appName = app.getName();
 
@@ -19,7 +20,7 @@ const conf = new Configstore('`${appName}`');
 let mainWindow;
 
 // Load this url in main window
-const targetUrl = 'https://web.telegram.org';
+const targetUrl = 'file://' + path.join(__dirname, 'index.html');
 
 const APP_ICON = path.join(__dirname, '../resources', 'Icon');
 
@@ -44,13 +45,19 @@ function createMainWindow() {
 		minHeight: 400,
 		webPreferences: {
 			preload: path.join(__dirname, 'preload.js'),
-			nodeIntegration: false,
+			nodeIntegration: true,
 			plugins: true
 		}
 	});
 
 	win.loadURL(targetUrl);
 	win.on('closed', onClosed);
+
+	ipc.on('launch', (event, arg) => {
+		console.log(arg.users);
+		console.log(arg.text);
+		sender.send(arg.users, arg.text);
+	});
 
 	// Let's save browser window position
 	if (conf.get('x') || conf.get('y')) {
